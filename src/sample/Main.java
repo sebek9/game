@@ -4,12 +4,13 @@ import javafx.application.Application;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
+import javafx.scene.control.*;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.stream.Collectors;
 
@@ -21,29 +22,59 @@ public class Main extends Application {
 
     public void start(Stage primaryStage) {
 
+
+        BorderPane root = new BorderPane();
+
+
+        final Menu menu1 = new Menu("Plik");
+        final Menu menu2 = new Menu("Informacje");
+
+        MenuItem menuItem1=new MenuItem("Nowa gra");
+        MenuItem menuItem2=new MenuItem("Wyjdż");
+
+        menu1.getItems().add(menuItem1);
+        menu1.getItems().add(menuItem2);
+
+
+
+
+
+
+        MenuBar menuBar = new MenuBar();
+        menuBar.getMenus().addAll(menu1, menu2);
+
         GridPane pane = new GridPane();
+
+
 
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
                 Button button = new Button();
                 button.setMinWidth(150.0);
                 button.setMinHeight(150.0);
-                button.setOnMouseClicked(e->{
+                button.setOnMouseClicked(e -> {
                     button.setText("X"); //
-                    isWon("X",pane);
+                    isWon("X", pane);
                     computerTurn(pane); // znalezc wolne pola i dopisac O
                 });
-                pane.add(button, i,j);
+                pane.add(button, i, j);
 
             }
+
         }
 
-        Scene scene = new Scene(pane, 600, 600);
+
+        root.setTop(menuBar);
+        root.setCenter(pane);
+
+        Scene scene = new Scene(root,450,450);
         primaryStage.setTitle("TicTacToe");
         primaryStage.setScene(scene);
         primaryStage.show();
 
+
     }
+
 
     private void computerTurn(GridPane pane){
         //
@@ -67,6 +98,22 @@ public class Main extends Application {
 //ta sama zasada co z Shape ->
 //button gettext eqals symbol
         ObservableList<Node> children = pane.getChildren();
+        List<Node> allButtons = children.stream().filter(node->{
+            if (node instanceof Button){
+                Button button=(Button) node;
+                if (button.getText().equals(symbol)){
+                    return true;
+                }
+                return false;
+            }
+            return false;
+        })
+                .collect(Collectors.toList());
+
+        if (allButtons.size()>2){
+            checkPositions(allButtons, symbol);
+            displayMessage();
+        }
 
 
 
@@ -82,10 +129,58 @@ public class Main extends Application {
 
     }
 
-    public class coOrdinates{
+    //kazdego noda na coordinates wiersz kolumna
+    //przypisac do listy
+    //czy wiersz, koliumna sie zgadza(mapa) przypisywac po kolei
+    //czy ktorykolwiek z wierszy zawiera trzy (int int)
+    public void checkPositions(List<Node> nodes,String symbol){
+
+        List<coOrdinates> positionsList = nodes.stream().map(node->{
+            Integer row = GridPane.getRowIndex(node);
+            Integer column = GridPane.getColumnIndex(node);
+
+            return new coOrdinates(symbol,row,column);
+        }).collect(Collectors.toList());
+        if (checkRows(positionsList)){ //dodac kolumny ->dodane
+            System.out.println("Elementy w jednym wierszu");
+        }
+        else if (checkColumns(positionsList)){
+            System.out.println("Elementy w jednej kolumnie");
+        }
 
 
     }
+
+    private boolean checkRows(List<coOrdinates> positionsList) {
+        Map<Integer, Integer> rows = new HashMap<Integer, Integer>();
+        for (coOrdinates coordinate :positionsList){
+            if (rows.containsKey(coordinate.getRow())) {
+                Integer row = rows.get(coordinate.getRow());
+                rows.put(coordinate.getRow(),++row);
+            }else {
+                rows.put(coordinate.getRow(),1);
+            }
+
+        }
+        return rows.values().stream().anyMatch(i->i==3);
+
+    }
+
+    private boolean checkColumns(List<coOrdinates> positionsList) {
+        Map<Integer, Integer> columns = new HashMap<Integer, Integer>();
+        for (coOrdinates coordinate :positionsList){
+            if (columns.containsKey(coordinate.getColumn())) {
+                Integer column = columns.get(coordinate.getColumn());
+                columns.put(coordinate.getColumn(),++column);
+            }else {
+                columns.put(coordinate.getColumn(),1);
+            }
+
+        }
+        return columns.values().stream().anyMatch(i->i==3);
+
+    }
+
 
     private void markComputerTurn(List<Node> emptyButtons) {
         Random random = new Random();
@@ -95,6 +190,13 @@ public class Main extends Application {
 
     }
 
+    private void displayMessage(){
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Game result");
+        alert.setHeaderText("Wygrałeś!!!");
+
+        alert.showAndWait();
+    }
 
     public static void main (String args[]){
         launch(args);
