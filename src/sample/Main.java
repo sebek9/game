@@ -8,6 +8,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,35 +18,57 @@ import java.util.stream.Collectors;
 public class Main extends Application {
 
 
-
     @Override
 
     public void start(Stage primaryStage) {
-
 
         BorderPane root = new BorderPane();
 
 
         final Menu menu1 = new Menu("Plik");
         final Menu menu2 = new Menu("Informacje");
-
-        MenuItem menuItem1=new MenuItem("Nowa gra");
-        MenuItem menuItem2=new MenuItem("Wyjdż");
-
-        menu1.getItems().add(menuItem1);
-        menu1.getItems().add(menuItem2);
-
-
-
-
-
-
         MenuBar menuBar = new MenuBar();
         menuBar.getMenus().addAll(menu1, menu2);
 
+        MenuItem menuItem1 = new MenuItem("Nowa gra");
+        MenuItem menuItem2 = new MenuItem("Wyjdż");
+        MenuItem menuItem3 = new MenuItem("Autorzy");
+
+        menu1.getItems().add(menuItem1);
+        menu1.getItems().add(menuItem2);
+        menu2.getItems().add(menuItem3);
+
+
         GridPane pane = new GridPane();
+        createGridPane(pane);
+
+        root.setTop(menuBar);
+        root.setCenter(pane);
+
+        Scene scene = new Scene(root, 450, 450);
+        primaryStage.setTitle("TicTacToe");
+        primaryStage.setScene(scene);
+        primaryStage.show();
 
 
+        menuItem3.setOnAction(e -> {
+            displayCredentials();
+        });
+
+        menuItem2.setOnAction(e -> {
+            primaryStage.close();
+
+        });
+        menuItem1.setOnAction(e -> {
+            createGridPane(pane);
+
+        });
+
+
+    }
+
+    private void createGridPane(GridPane pane) {
+        pane.getChildren().clear();
 
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
@@ -62,21 +85,10 @@ public class Main extends Application {
             }
 
         }
-
-
-        root.setTop(menuBar);
-        root.setCenter(pane);
-
-        Scene scene = new Scene(root,450,450);
-        primaryStage.setTitle("TicTacToe");
-        primaryStage.setScene(scene);
-        primaryStage.show();
-
-
     }
 
 
-    private void computerTurn(GridPane pane){
+    private void computerTurn(GridPane pane) {
         //
         ObservableList<Node> children = pane.getChildren();
         List<Node> emptyButtons = children.stream().filter(node -> {
@@ -91,17 +103,17 @@ public class Main extends Application {
             return false;
         }).collect(Collectors.toList());
         markComputerTurn(emptyButtons);
-        isWon("O",pane);
+        isWon("O", pane);
     }
 
     private void isWon(String symbol, GridPane pane) {
 //ta sama zasada co z Shape ->
 //button gettext eqals symbol
         ObservableList<Node> children = pane.getChildren();
-        List<Node> allButtons = children.stream().filter(node->{
-            if (node instanceof Button){
-                Button button=(Button) node;
-                if (button.getText().equals(symbol)){
+        List<Node> allButtons = children.stream().filter(node -> {
+            if (node instanceof Button) {
+                Button button = (Button) node;
+                if (button.getText().equals(symbol)) {
                     return true;
                 }
                 return false;
@@ -110,11 +122,10 @@ public class Main extends Application {
         })
                 .collect(Collectors.toList());
 
-        if (allButtons.size()>2){
+        if (allButtons.size() > 2) {
             checkPositions(allButtons, symbol);
             displayMessage();
         }
-
 
 
         //pobrac z grid pane wszytskie buttony ktore maja X lub O
@@ -133,18 +144,17 @@ public class Main extends Application {
     //przypisac do listy
     //czy wiersz, koliumna sie zgadza(mapa) przypisywac po kolei
     //czy ktorykolwiek z wierszy zawiera trzy (int int)
-    public void checkPositions(List<Node> nodes,String symbol){
+    public void checkPositions(List<Node> nodes, String symbol) {
 
-        List<coOrdinates> positionsList = nodes.stream().map(node->{
+        List<coOrdinates> positionsList = nodes.stream().map(node -> {
             Integer row = GridPane.getRowIndex(node);
             Integer column = GridPane.getColumnIndex(node);
 
-            return new coOrdinates(symbol,row,column);
+            return new coOrdinates(symbol, row, column);
         }).collect(Collectors.toList());
-        if (checkRows(positionsList)){ //dodac kolumny ->dodane
+        if (checkRows(positionsList)) { //dodac kolumny ->dodane
             System.out.println("Elementy w jednym wierszu");
-        }
-        else if (checkColumns(positionsList)){
+        } else if (checkColumns(positionsList)) {
             System.out.println("Elementy w jednej kolumnie");
         }
 
@@ -153,44 +163,44 @@ public class Main extends Application {
 
     private boolean checkRows(List<coOrdinates> positionsList) {
         Map<Integer, Integer> rows = new HashMap<Integer, Integer>();
-        for (coOrdinates coordinate :positionsList){
+        for (coOrdinates coordinate : positionsList) {
             if (rows.containsKey(coordinate.getRow())) {
                 Integer row = rows.get(coordinate.getRow());
-                rows.put(coordinate.getRow(),++row);
-            }else {
-                rows.put(coordinate.getRow(),1);
+                rows.put(coordinate.getRow(), ++row);
+            } else {
+                rows.put(coordinate.getRow(), 1);
             }
 
         }
-        return rows.values().stream().anyMatch(i->i==3);
+        return rows.values().stream().anyMatch(i -> i == 3);
 
     }
 
     private boolean checkColumns(List<coOrdinates> positionsList) {
         Map<Integer, Integer> columns = new HashMap<Integer, Integer>();
-        for (coOrdinates coordinate :positionsList){
+        for (coOrdinates coordinate : positionsList) {
             if (columns.containsKey(coordinate.getColumn())) {
                 Integer column = columns.get(coordinate.getColumn());
-                columns.put(coordinate.getColumn(),++column);
-            }else {
-                columns.put(coordinate.getColumn(),1);
+                columns.put(coordinate.getColumn(), ++column);
+            } else {
+                columns.put(coordinate.getColumn(), 1);
             }
 
         }
-        return columns.values().stream().anyMatch(i->i==3);
+        return columns.values().stream().anyMatch(i -> i == 3);
 
     }
 
 
     private void markComputerTurn(List<Node> emptyButtons) {
         Random random = new Random();
-        int chosenButtonNumber=random.nextInt(emptyButtons.size());
-        Button button = (Button)emptyButtons.get(chosenButtonNumber);
+        int chosenButtonNumber = random.nextInt(emptyButtons.size());
+        Button button = (Button) emptyButtons.get(chosenButtonNumber);
         button.setText("O");
 
     }
 
-    private void displayMessage(){
+    private void displayMessage() {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Game result");
         alert.setHeaderText("Wygrałeś!!!");
@@ -198,7 +208,15 @@ public class Main extends Application {
         alert.showAndWait();
     }
 
-    public static void main (String args[]){
+    private void displayCredentials() {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Credentials");
+        alert.setHeaderText("Autor: Sebastian Kalinkowski");
+        alert.showAndWait();
+    }
+
+
+    public static void main(String args[]) {
         launch(args);
     }
 }
