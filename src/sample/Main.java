@@ -28,9 +28,9 @@ public class Main extends Application {
 
         final Menu menu1 = new Menu("Plik");
         final Menu menu2 = new Menu("Informacje");
-        final Menu menu3=new Menu("Stan gry");
+        final Menu menu3 = new Menu("Stan gry");
         MenuBar menuBar = new MenuBar();
-        menuBar.getMenus().addAll(menu1, menu3,menu2);
+        menuBar.getMenus().addAll(menu1, menu3, menu2);
 
         MenuItem menuItem1 = new MenuItem("Nowa gra");
         MenuItem menuItem2 = new MenuItem("Wyjdż");
@@ -119,8 +119,7 @@ public class Main extends Application {
     }
 
     private void isWon(String symbol, GridPane pane) {
-//ta sama zasada co z Shape ->
-//button gettext eqals symbol
+
         ObservableList<Node> children = pane.getChildren();
         List<Node> allButtons = children.stream().filter(node -> {
             if (node instanceof Button) {
@@ -140,22 +139,8 @@ public class Main extends Application {
         }
 
 
-        //pobrac z grid pane wszytskie buttony ktore maja X lub O
-
-        // sprawdzic czy jest 3 lub wiecej //dodatkowa klasa ze wspolrzednymi X,Y i symbol("x"lub O)
-        //mozna zmapowac na li
-        //GridPane.getColumnIndex(node);
-        //lista position - >sprawdzenie czy sa w jednym wierszu - >zamienic na mape (integer-numer wiersza,integer-ilosc wystapien)
-        //ide po liscie i sprawdzam czy istnieje w mapie - >jezeli tak to zwiekszam o 1 ; sprawdznie czy jakakolwiek wartosc jest rowna 3 //nie klucz
-        //nastepnie  metodta z nuemrem wiersza
-        //sout - > boolean; true lub false
-
     }
 
-    //kazdego noda na coordinates wiersz kolumna
-    //przypisac do listy
-    //czy wiersz, koliumna sie zgadza(mapa) przypisywac po kolei
-    //czy ktorykolwiek z wierszy zawiera trzy (int int)
     public void checkPositions(List<Node> nodes, String symbol) {
 
         List<coOrdinates> positionsList = nodes.stream().map(node -> {
@@ -227,12 +212,12 @@ public class Main extends Application {
         alert.showAndWait();
     }
 
-    File savedHashMaps=new File("ranking.list");
+    File savedHashMaps = new File("ranking.list");
     Map<String, Long> map = new HashMap<>();
 
     public void saveMap() {
         try {
-            ObjectOutputStream oos = new ObjectOutputStream (new FileOutputStream(savedHashMaps));
+            ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(savedHashMaps));
             oos.writeObject(map);
             oos.close();
         } catch (Exception e) {
@@ -244,7 +229,7 @@ public class Main extends Application {
         try {
             ObjectInputStream ois = new ObjectInputStream(new FileInputStream(savedHashMaps));
             Object readMap = ois.readObject();
-            if(readMap instanceof HashMap) {
+            if (readMap instanceof HashMap) {
                 map.putAll((HashMap) readMap);
             }
             ois.close();
