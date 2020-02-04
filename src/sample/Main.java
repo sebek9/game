@@ -9,6 +9,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 
+import java.io.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,17 +28,21 @@ public class Main extends Application {
 
         final Menu menu1 = new Menu("Plik");
         final Menu menu2 = new Menu("Informacje");
+        final Menu menu3=new Menu("Stan gry");
         MenuBar menuBar = new MenuBar();
-        menuBar.getMenus().addAll(menu1, menu2);
+        menuBar.getMenus().addAll(menu1, menu3,menu2);
 
         MenuItem menuItem1 = new MenuItem("Nowa gra");
         MenuItem menuItem2 = new MenuItem("Wyjdż");
         MenuItem menuItem3 = new MenuItem("Autorzy");
+        MenuItem menuItem4 = new MenuItem("Zapisz grę");
+        MenuItem menuItem5 = new MenuItem("Wczytaj grę");
 
         menu1.getItems().add(menuItem1);
         menu1.getItems().add(menuItem2);
         menu2.getItems().add(menuItem3);
-
+        menu3.getItems().add(menuItem4);
+        menu3.getItems().add(menuItem5);
 
         GridPane pane = new GridPane();
         createGridPane(pane);
@@ -63,7 +68,14 @@ public class Main extends Application {
             createGridPane(pane);
 
         });
+        menuItem4.setOnAction(e -> {
+            saveMap();
 
+        });
+        menuItem5.setOnAction(e -> {
+            loadMap();
+
+        });
 
     }
 
@@ -213,6 +225,32 @@ public class Main extends Application {
         alert.setTitle("Credentials");
         alert.setHeaderText("Autor: Sebastian Kalinkowski");
         alert.showAndWait();
+    }
+
+    File savedHashMaps=new File("ranking.list");
+    Map<String, Long> map = new HashMap<>();
+
+    public void saveMap() {
+        try {
+            ObjectOutputStream oos = new ObjectOutputStream (new FileOutputStream(savedHashMaps));
+            oos.writeObject(map);
+            oos.close();
+        } catch (Exception e) {
+            // obsługa błędów
+        }
+    }
+
+    public void loadMap() {
+        try {
+            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(savedHashMaps));
+            Object readMap = ois.readObject();
+            if(readMap instanceof HashMap) {
+                map.putAll((HashMap) readMap);
+            }
+            ois.close();
+        } catch (Exception e) {
+            // obsługa błędów
+        }
     }
 
 
